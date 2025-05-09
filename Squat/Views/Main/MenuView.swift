@@ -15,7 +15,6 @@ struct MenuView: View {
     @State private var navigateToTheory = false
     @State private var navigateToCounter = false
     @State private var navigateToSettings = false
-    @AppStorage("hasSeenTutorial") private var hasSeenTutorial = false
     @State private var currentTutorialStep = 0
     @State private var showTutorial = false
     
@@ -37,35 +36,35 @@ struct MenuView: View {
                 .edgesIgnoringSafeArea(.all)
             
             // Main content
-            ScrollView {
-                VStack(spacing: 30) {
-                    // Header
-                    VStack(spacing: 8) {
+        ScrollView {
+            VStack(spacing: 30) {
+                // Header
+                VStack(spacing: 8) {
                         Text("NHS Squat Analysis")
-                            .font(.system(size: 34, weight: .bold))
-                            .foregroundColor(.primary)
-                        
-                        Text("Perfect Your Form Today!")
-                            .font(.subheadline)
-                            .foregroundColor(.secondary)
-                    }
-                    .padding(.top)
+                        .font(.system(size: 34, weight: .bold))
+                        .foregroundColor(.primary)
                     
-                    // Main Menu Cards
-                    VStack(spacing: 20) {
-                        // Visualizer Card
+                        Text("Perfect Your Form Today!")
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
+                }
+                .padding(.top)
+                
+                // Main Menu Cards
+                VStack(spacing: 20) {
+                    // Visualizer Card
                         Button(action: {
                             if !showTutorial {
                                 navigateToVisualizer = true
                             }
                         }) {
-                            MenuCard(
-                                title: "Squat Visualizer",
+                        MenuCard(
+                            title: "Squat Visualizer",
                                 subtitle: "Analyze Squat Mechanics",
-                                systemImage: "figure.walk",
-                                color: .blue
-                            )
-                        }
+                            systemImage: "figure.walk",
+                            color: .blue
+                        )
+                    }
                         .buttonStyle(PlainButtonStyle())
                         .id("visualizer")
                         .background(
@@ -82,20 +81,20 @@ struct MenuView: View {
                                 label: { EmptyView() }
                             )
                         )
-                        
-                        // Theory Card
+                    
+                    // Theory Card
                         Button(action: {
                             if !showTutorial {
                                 navigateToTheory = true
                             }
                         }) {
-                            MenuCard(
-                                title: "Squat Theory",
+                        MenuCard(
+                            title: "Squat Theory",
                                 subtitle: "Learn Proper Technique",
-                                systemImage: "book.fill",
-                                color: .green
-                            )
-                        }
+                            systemImage: "book.fill",
+                            color: .green
+                        )
+                    }
                         .buttonStyle(PlainButtonStyle())
                         .id("theory")
                         .background(
@@ -119,13 +118,13 @@ struct MenuView: View {
                                 navigateToCounter = true
                             }
                         }) {
-                            MenuCard(
-                                title: "Squat Counter",
+                        MenuCard(
+                            title: "Squat Counter",
                                 subtitle: "Track Your Reps",
-                                systemImage: "number.circle.fill",
-                                color: .purple
-                            )
-                        }
+                            systemImage: "number.circle.fill",
+                            color: .purple
+                        )
+                    }
                         .buttonStyle(PlainButtonStyle())
                         .id("counter")
                         .background(
@@ -142,20 +141,20 @@ struct MenuView: View {
                                 label: { EmptyView() }
                             )
                         )
-                        
-                        // Settings Card
+                    
+                    // Settings Card
                         Button(action: {
                             if !showTutorial {
                                 navigateToSettings = true
                             }
                         }) {
-                            MenuCard(
-                                title: "Settings",
+                        MenuCard(
+                            title: "Settings",
                                 subtitle: "Customize Your Experience",
-                                systemImage: "gearshape.fill",
-                                color: .orange
-                            )
-                        }
+                            systemImage: "gearshape.fill",
+                            color: .orange
+                        )
+                    }
                         .buttonStyle(PlainButtonStyle())
                         .id("settings")
                         .background(
@@ -172,8 +171,8 @@ struct MenuView: View {
                                 label: { EmptyView() }
                             )
                         )
-                    }
-                    .padding(.horizontal)
+                }
+                .padding(.horizontal)
                     
                     Spacer()
                     
@@ -189,10 +188,10 @@ struct MenuView: View {
                     }
                     .frame(maxWidth: .infinity)
                     .padding(.bottom, 16)
-                }
-                .padding(.bottom)
             }
-            .background(Color(.systemGroupedBackground))
+            .padding(.bottom)
+        }
+        .background(Color(.systemGroupedBackground))
             .onPreferenceChange(ButtonFramePreferenceKey.self) { frames in
                 self.buttonFrames = frames
             }
@@ -216,11 +215,23 @@ struct MenuView: View {
             navigateToCounter = false
             navigateToSettings = false
             
-            // Show tutorial if it hasn't been seen before
-            if !hasSeenTutorial {
+            // Show tutorial if user is new or hasn't seen the tutorial
+            let hasSeenTutorial = UserDefaults.standard.bool(forKey: "hasSeenTutorial")
+            let isFirstTimeUser = appViewModel.isFirstTimeUser
+            
+            print("MenuView appeared: hasSeenTutorial = \(hasSeenTutorial), isFirstTimeUser = \(isFirstTimeUser)")
+            print("appViewModel.hasSeenTutorial = \(appViewModel.hasSeenTutorial)")
+            
+            // If UserDefaults says we haven't seen tutorial OR the app thinks this is a first-time user
+            // then show the tutorial
+            if !hasSeenTutorial || isFirstTimeUser {
+                print("Will show tutorial after delay")
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                     showTutorial = true
+                    print("Tutorial displayed: showTutorial = \(showTutorial)")
                 }
+            } else {
+                print("Skipping tutorial display")
             }
         }
     }
@@ -234,7 +245,7 @@ struct MenuView: View {
     private func endTutorial() {
         withAnimation(.easeInOut(duration: 0.3)) {
             showTutorial = false
-            hasSeenTutorial = true
+            appViewModel.hasSeenTutorial = true
         }
     }
 }

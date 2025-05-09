@@ -51,6 +51,85 @@ struct StickFigureView: View {
         }
     }
     
+    // Calculate an adjusted hip angle to maintain a vertical bar path
+    private func calculateAdjustedHipAngle(
+        squatDepth: CGFloat,
+        femurLength: CGFloat,
+        tibiaLength: CGFloat,
+        ankleAngle: CGFloat,
+        kneeAngle: CGFloat,
+        boardHeight: SquatMechanics.BoardHeight,
+        size: CGSize
+    ) -> CGFloat {
+        // STEP 1: Calculate the joint positions at 0% squat depth (standing position)
+        
+        // For 0% squat depth, get the ankle, knee, and hip positions
+        let verticalOffset = isPhone ? 0.75 : 0.8
+        let originY = size.height * verticalOffset
+        
+        // Calculate ankle position based on board height
+        let width = tibiaLength * 0.8
+        let boardAngleRad = boardHeight.angle * Double.pi / 180.0
+        
+        let anklePoint0: CGPoint
+        if boardHeight != .none {
+            let halfWidth = width / 2
+            let heightAtAnkle = halfWidth * tan(boardAngleRad)
+            anklePoint0 = CGPoint(
+                x: 0,
+                y: -heightAtAnkle
+            )
+        } else {
+            anklePoint0 = .zero
+        }
+        
+        // At 0% depth, we use 90 degrees for ankle and knee (standing straight)
+        let ankleAngle0Rad = CGFloat(90) * .pi / 180
+        let kneePoint0 = CGPoint(
+            x: anklePoint0.x + tibiaLength * cos(ankleAngle0Rad),
+            y: anklePoint0.y - tibiaLength * sin(ankleAngle0Rad)
+        )
+        
+        let kneeAngle0Rad = CGFloat(90) * .pi / 180
+        let hipPoint0 = CGPoint(
+            x: kneePoint0.x + femurLength * cos(kneeAngle0Rad),
+            y: kneePoint0.y - femurLength * sin(kneeAngle0Rad)
+        )
+        
+        // Initial hip angle and shoulder position at 0% depth
+        let hipAngle0 = CGFloat(90) // Standing straight
+        let hipAngle0Rad = hipAngle0 * .pi / 180
+        
+        // This is the shoulder x-coordinate we want to maintain
+        let targetShoulderX = hipPoint0.x + segmentLength * cos(hipAngle0Rad)
+        
+        // STEP 2: Now with the current squat depth, calculate actual knee and hip positions
+        let ankleAngleRad = ankleAngle * .pi / 180
+        let kneePoint = CGPoint(
+            x: anklePoint0.x + tibiaLength * cos(ankleAngleRad),
+            y: anklePoint0.y - tibiaLength * sin(ankleAngleRad)
+        )
+        
+        let kneeAngleRad = kneeAngle * .pi / 180
+        let hipPoint = CGPoint(
+            x: kneePoint.x + femurLength * cos(kneeAngleRad),
+            y: kneePoint.y - femurLength * sin(kneeAngleRad)
+        )
+        
+        // STEP 3: Calculate the hip angle needed to position the shoulder at targetShoulderX
+        
+        // The math: if shoulderX = hipX + segmentLength * cos(hipAngleRad)
+        // Then hipAngleRad = acos((shoulderX - hipX) / segmentLength)
+        let cosHipAngle = (targetShoulderX - hipPoint.x) / segmentLength
+        
+        // Clamp to valid range for acos
+        let clampedCosValue = max(-1, min(1, cosHipAngle))
+        let adjustedHipAngleRad = acos(clampedCosValue)
+        let adjustedHipAngle = adjustedHipAngleRad * 180 / .pi
+        
+        return adjustedHipAngle
+    }
+    
     var body: some View {
         GeometryReader { geometry in
             ZStack(alignment: .topLeading) {
@@ -112,10 +191,22 @@ struct StickFigureView: View {
                         y: kneePoint.y - femurLength * sin(kneeAngleRad)
                     )
                     
-                    let hipAngleRad = angles.hip * Double.pi / 180
+                    // Calculate adjusted hip angle to maintain vertical bar path
+                    let adjustedHipAngle = calculateAdjustedHipAngle(
+                        squatDepth: viewModel.squatDepth,
+                        femurLength: femurLength,
+                        tibiaLength: tibiaLength,
+                        ankleAngle: angles.ankle,
+                        kneeAngle: angles.knee,
+                        boardHeight: viewModel.boardHeight,
+                        size: size
+                    )
+                    
+                    // Use the adjusted hip angle instead of the standard one
+                    let adjustedHipAngleRad = adjustedHipAngle * Double.pi / 180
                     let shoulderPoint = CGPoint(
-                        x: hipPoint.x + segmentLength * cos(hipAngleRad),
-                        y: hipPoint.y - segmentLength * sin(hipAngleRad)
+                        x: hipPoint.x + segmentLength * cos(adjustedHipAngleRad),
+                        y: hipPoint.y - segmentLength * sin(adjustedHipAngleRad)
                     )
                     
                     // Draw segments (bones) with gradient
@@ -145,7 +236,8 @@ struct StickFigureView: View {
                     }
                     
                     // Draw hip to shoulder with color based on hip angle
-                    let torsoColor = torsoLineColor(hipAngle: angles.hip)
+                    // Note: we're using the adjusted hip angle here for color
+                    let torsoColor = torsoLineColor(hipAngle: adjustedHipAngle)
                     context.stroke(
                         Path { path in
                             path.move(to: hipPoint)

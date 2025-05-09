@@ -9,7 +9,7 @@ struct SquatMechanics {
         var lengthMultiplier: CGFloat {
             switch self {
             case .short: return 1
-            case .long: return 1.2  // 20% longer
+            case .long: return 1.1  // 20% longer
             }
         }
     }
@@ -73,16 +73,16 @@ struct SquatMechanics {
         private static func getEndAngles(femurLength: FemurLength, boardHeight: BoardHeight) -> (hip: CGFloat, knee: CGFloat, ankle: CGFloat) {
             switch (femurLength, boardHeight) {
             // Short femur angles - more upright due to better leverages
-            case (.short, .none):   return (hip: 75, knee: 185, ankle: 45)
-            case (.short, .low):    return (hip: 80, knee: 187, ankle: 40)
-            case (.short, .medium): return (hip: 85, knee: 189, ankle: 35)
-            case (.short, .high):   return (hip: 90, knee: 190, ankle: 30)
+            case (.short, .none):   return (hip: 80, knee: 185, ankle: 40)
+            case (.short, .low):    return (hip: 83, knee: 188, ankle: 36)
+            case (.short, .medium): return (hip: 86, knee: 190, ankle: 33)
+            case (.short, .high):   return (hip: 88, knee: 192, ankle: 30)
             
             // Long femur angles - more forward lean required due to leverages
             case (.long, .none):    return (hip: 65, knee: 175, ankle: 50)
-            case (.long, .low):     return (hip: 75, knee: 178, ankle: 45)
-            case (.long, .medium):  return (hip: 80, knee: 180, ankle: 40)
-            case (.long, .high):    return (hip: 85, knee: 183, ankle: 35)
+            case (.long, .low):     return (hip: 75, knee: 178, ankle: 40)
+            case (.long, .medium):  return (hip: 80, knee: 180, ankle: 30)
+            case (.long, .high):    return (hip: 85, knee: 183, ankle: 20)
             }
         }
     }

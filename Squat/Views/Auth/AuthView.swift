@@ -39,18 +39,18 @@ struct AuthView: View {
                     .padding(.bottom, 24)
                     .padding(.horizontal, 24)
                 
-                // Login/Register Picker
-                Picker(selection: $authMode, label: Text("")) {
-                    Text("Login").tag(AuthMode.login)
-                    Text("Register").tag(AuthMode.register)
-                }
-                .pickerStyle(SegmentedPickerStyle())
+            // Login/Register Picker
+            Picker(selection: $authMode, label: Text("")) {
+                Text("Login").tag(AuthMode.login)
+                Text("Register").tag(AuthMode.register)
+            }
+            .pickerStyle(SegmentedPickerStyle())
                 .padding(.horizontal, 24)
                 .padding(.bottom, 32)
 
                 // Form fields in a ScrollView to handle variable content
                 VStack(spacing: 16) {
-                    // Email field
+            // Email field
                     VStack(alignment: .leading, spacing: 8) {
                         Text("Email")
                             .font(.subheadline)
@@ -62,21 +62,21 @@ struct AuthView: View {
                                 .frame(width: 24)
                             
                             TextField("", text: $email)
-                                .keyboardType(.emailAddress)
-                                .autocapitalization(.none)
+                .keyboardType(.emailAddress)
+                .autocapitalization(.none)
                                 .disableAutocorrection(true)
                                 .foregroundColor(.primary)
                                 .accentColor(.blue)
                                 .modifier(PlaceholderStyle(showPlaceHolder: email.isEmpty, placeholder: "your@email.com"))
                         }
-                        .padding()
+                .padding()
                         .background(
                             RoundedRectangle(cornerRadius: 12)
                                 .fill(Color(.secondarySystemBackground))
                         )
                     }
 
-                    // Password field
+            // Password field
                     VStack(alignment: .leading, spacing: 8) {
                         Text("Password")
                             .font(.subheadline)
@@ -91,15 +91,15 @@ struct AuthView: View {
                                 .foregroundColor(.primary)
                                 .accentColor(.blue)
                         }
-                        .padding()
+                .padding()
                         .background(
                             RoundedRectangle(cornerRadius: 12)
                                 .fill(Color(.secondarySystemBackground))
                         )
                     }
 
-                    // Confirm password (Register mode only)
-                    if authMode == .register {
+            // Confirm password (Register mode only)
+            if authMode == .register {
                         VStack(alignment: .leading, spacing: 8) {
                             Text("Confirm Password")
                                 .font(.subheadline)
@@ -114,7 +114,7 @@ struct AuthView: View {
                                     .foregroundColor(.primary)
                                     .accentColor(.blue)
                             }
-                            .padding()
+                    .padding()
                             .background(
                                 RoundedRectangle(cornerRadius: 12)
                                     .fill(Color(.secondarySystemBackground))
@@ -125,15 +125,15 @@ struct AuthView: View {
                 .padding(.horizontal, 24)
                 .animation(.none, value: authMode) // Prevent animation when switching modes
 
-                // Forgot password (Login mode only)
-                if authMode == .login {
+            // Forgot password (Login mode only)
+            if authMode == .login {
                     HStack {
                         Spacer()
-                        Button("Forgot Password?") {
-                            sendPasswordReset()
-                        }
+                Button("Forgot Password?") {
+                    sendPasswordReset()
+                }
                         .font(.system(size: 14))
-                        .foregroundColor(.blue)
+                .foregroundColor(.blue)
                     }
                     .padding(.top, 8)
                     .padding(.horizontal, 24)
@@ -143,10 +143,10 @@ struct AuthView: View {
                 if authMode == .register {
                     Spacer()
                         .frame(height: 30) // Match the height of the forgot password section
-                }
+            }
 
-                // Primary auth button
-                Button(action: handleAuth) {
+            // Primary auth button
+            Button(action: handleAuth) {
                     HStack {
                         if isProcessing {
                             ProgressView()
@@ -154,7 +154,7 @@ struct AuthView: View {
                                 .padding(.trailing, 8)
                         }
                         
-                        Text(authMode == .login ? "Login" : "Register")
+                Text(authMode == .login ? "Login" : "Register")
                             .font(.system(size: 17, weight: .semibold))
                     }
                     .frame(maxWidth: .infinity)
@@ -164,8 +164,8 @@ struct AuthView: View {
                             .fill(Color.blue)
                     )
                     .foregroundColor(.white)
-                }
-                .disabled(isProcessing)
+            }
+            .disabled(isProcessing)
                 .padding(.horizontal, 24)
                 .padding(.top, 32)
 
@@ -180,9 +180,9 @@ struct AuthView: View {
                 .padding(.horizontal, 24)
                 .padding(.vertical, 24)
 
-                // Third-party sign-in
+            // Third-party sign-in
                 VStack(spacing: 16) {
-                    // Google Sign In
+            // Google Sign In
                     Button(action: handleGoogleSignIn) {
                         HStack {
                             Image("google_icon")
@@ -192,8 +192,8 @@ struct AuthView: View {
                             
                             Text("Sign in with Google")
                                 .font(.system(size: 16, weight: .medium))
-                        }
-                        .frame(maxWidth: .infinity)
+            }
+            .frame(maxWidth: .infinity)
                         .padding(.vertical, 14)
                         .background(
                             RoundedRectangle(cornerRadius: 12)
@@ -205,8 +205,8 @@ struct AuthView: View {
                         )
                         .foregroundColor(.primary)
                     }
-                    
-                    // Apple Sign In
+
+            // Apple Sign In
                     Button(action: handleAppleSignIn) {
                         HStack {
                             Image(systemName: "apple.logo")
@@ -216,16 +216,16 @@ struct AuthView: View {
                             
                             Text("Sign in with Apple")
                                 .font(.system(size: 16, weight: .medium))
-                        }
-                        .frame(maxWidth: .infinity)
+            }
+            .frame(maxWidth: .infinity)
                         .padding(.vertical, 14)
                         .background(
                             RoundedRectangle(cornerRadius: 12)
                                 .fill(Color.black)
                         )
-                        .foregroundColor(.white)
+            .foregroundColor(.white)
                     }
-                }
+        }
                 .padding(.horizontal, 24)
                 .padding(.bottom, 40)
             }
@@ -240,8 +240,19 @@ struct AuthView: View {
             )
         }
         // Automatically mark user as logged in after Apple sign-in success
-        .onReceive(NotificationCenter.default.publisher(for: .appleSignInSuccess)) { _ in
+        .onReceive(NotificationCenter.default.publisher(for: .appleSignInSuccess)) { notification in
+            // Always update login state first
             appViewModel.isLoggedIn = true
+            
+            // Check if this is a new user
+            if let isNewUser = notification.userInfo?["isNewUser"] as? Bool, isNewUser {
+                print("New user created with Apple: Ensuring tutorial will show")
+                // Directly modify UserDefaults to guarantee tutorial will show
+                UserDefaults.standard.set(false, forKey: "hasSeenTutorial")
+                
+                // Set first time user flag
+                appViewModel.isFirstTimeUser = true
+            }
         }
     }
 
@@ -320,7 +331,23 @@ struct AuthView: View {
                     print("Firebase sign in with Google error: \(error.localizedDescription)")
                 } else {
                     print("User signed in with Google, user: \(authResult?.user.uid ?? "none")")
-                    appViewModel.isLoggedIn = true
+                    
+                    // Check if this is a new user
+                    let isNewUser = authResult?.additionalUserInfo?.isNewUser ?? false
+                    
+                    DispatchQueue.main.async {
+                        // Always ensure login state is updated first
+                        self.appViewModel.isLoggedIn = true
+                        
+                        if isNewUser {
+                            print("New user created with Google: Ensuring tutorial will show")
+                            // Directly modify UserDefaults to guarantee tutorial will show
+                            UserDefaults.standard.set(false, forKey: "hasSeenTutorial")
+                            
+                            // Set first time user flag
+                            self.appViewModel.isFirstTimeUser = true
+                        }
+                    }
                 }
             }
         }
@@ -328,23 +355,26 @@ struct AuthView: View {
 
     // MARK: - Apple Sign In
     func handleAppleSignIn() {
-        // 1. Generate a nonce to prevent replay attacks.
-        let nonce = AppleSignInAuthDelegate.shared.generateNonce()
-        AppleSignInAuthDelegate.shared.currentNonce = nonce
-        
-        // 2. Create the request
-        let provider = ASAuthorizationAppleIDProvider()
-        let request = provider.createRequest()
-        request.requestedScopes = [.fullName, .email]
-        request.nonce = nonce
-        
-        // 3. Create controller
-        let controller = ASAuthorizationController(authorizationRequests: [request])
-        controller.delegate = AppleSignInAuthDelegate.shared
-        controller.presentationContextProvider = AppleSignInPresentationProvider.shared
-        
-        // 4. Perform the request
-        controller.performRequests()
+        // Use the centralized auth service for Apple Sign In
+        AuthService.shared.signInWithApple(presenting: getRootViewController()) { error, isNewUser in
+            if let error = error {
+                print("Apple sign in error: \(error.localizedDescription)")
+                self.errorMessage = "Apple sign in failed: \(error.localizedDescription)"
+                self.showAlert = true
+                return
+            }
+            
+            // isLoggedIn state is already updated in AuthService
+            print("Successfully signed in with Apple, isNewUser: \(isNewUser)")
+            
+            // Ensure the app knows we're logged in
+            self.appViewModel.isLoggedIn = true
+            
+            // If this is a new user, ensure the tutorial will be shown
+            if isNewUser {
+                self.appViewModel.isFirstTimeUser = true
+            }
+        }
     }
 
     // Helper to get the root view controller for presenting sign-in flows
@@ -400,9 +430,19 @@ class AppleSignInAuthDelegate: NSObject, ASAuthorizationControllerDelegate {
                 print("Firebase sign in with Apple error: \(error.localizedDescription)")
             } else {
                 print("User signed in with Apple, user: \(authResult?.user.uid ?? "none")")
-                // Notify AuthView that sign in succeeded
+                
+                // Check if this is a new user - very important for showing the tutorial
+                let isNewUser = authResult?.additionalUserInfo?.isNewUser ?? false
+                print("Apple sign-in: isNewUser = \(isNewUser)")
+                
+                // Notify AuthView that sign in succeeded and if it's a new user
                 DispatchQueue.main.async {
-                    NotificationCenter.default.post(name: .appleSignInSuccess, object: nil)
+                    // Post notification with isNewUser information
+                    NotificationCenter.default.post(
+                        name: .appleSignInSuccess,
+                        object: nil,
+                        userInfo: ["isNewUser": isNewUser]
+                    )
                 }
             }
         }
@@ -443,8 +483,17 @@ class AppleSignInAuthDelegate: NSObject, ASAuthorizationControllerDelegate {
 /// Provides the presentation anchor for the Apple sign-in flow
 class AppleSignInPresentationProvider: NSObject, ASAuthorizationControllerPresentationContextProviding {
     static let shared = AppleSignInPresentationProvider()
+    
+    // Store the presenting view controller
+    var presentingViewController: UIViewController?
 
     func presentationAnchor(for controller: ASAuthorizationController) -> ASPresentationAnchor {
+        if let viewController = presentingViewController, 
+           let window = viewController.view.window {
+            return window
+        }
+        
+        // Fallback to getting the key window
         let scenes = UIApplication.shared.connectedScenes
         let windowScene = scenes.first as? UIWindowScene
         let window = windowScene?.windows.first ?? UIWindow()

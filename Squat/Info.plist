@@ -15,8 +15,6 @@
 			</array>
 		</dict>
 	</array>
-	<key>NSCameraUsageDescription</key>
-	<string>Camera access is required to detect and count your squats.</string>
 	<key>QuickPoseSDKKey</key>
 	<string>01JPCJ8TW9A3FD1CT4PFDHY8B9</string>
 </dict>

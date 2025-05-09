@@ -218,7 +218,7 @@ struct EnhancedAuthView: View {
                 )
                 .foregroundColor(.white)
                 .shadow(color: Color.blue.opacity(0.3), radius: 5, x: 0, y: 3)
-            }
+                }
             .disabled(isProcessing)
             .padding(.horizontal, 30)
             .padding(.top, 30)
@@ -386,21 +386,8 @@ struct EnhancedAuthView: View {
     
     // MARK: - Apple Sign In
     func handleAppleSignIn() {
-        // Use the same AppleSignInAuthDelegate you defined in AuthView
-        let nonce = AppleSignInAuthDelegate.shared.generateNonce()
-        AppleSignInAuthDelegate.shared.currentNonce = nonce
-        
-        let provider = ASAuthorizationAppleIDProvider()
-        let request = provider.createRequest()
-        request.requestedScopes = [.fullName, .email]
-        request.nonce = nonce
-        
-        let authController = ASAuthorizationController(authorizationRequests: [request])
-        authController.delegate = AppleSignInAuthDelegate.shared
-        authController.presentationContextProvider = AppleSignInPresentationProvider.shared
-        
-        // Set completion handler with proper type annotations
-        AppleSignInAuthDelegate.shared.completionHandler = { (authResult: ASAuthorizationCredential?, error: Error?) in
+        // Use the centralized auth service for Apple Sign In
+        AuthService.shared.signInWithApple(presenting: getRootViewController()) { error, isNewUser in
             if let error = error {
                 print("Apple sign in error: \(error.localizedDescription)")
                 self.errorMessage = "Apple sign in failed: \(error.localizedDescription)"
@@ -408,42 +395,17 @@ struct EnhancedAuthView: View {
                 return
             }
             
-            if let appleIDCredential = authResult as? ASAuthorizationAppleIDCredential {
-                guard let nonce = AppleSignInAuthDelegate.shared.currentNonce else {
-                    print("Invalid state: No nonce provided.")
-                    return
-                }
-                guard let appleIDToken = appleIDCredential.identityToken else {
-                    print("Unable to fetch identity token.")
-                    return
-                }
-                guard let idTokenString = String(data: appleIDToken, encoding: .utf8) else {
-                    print("Unable to serialize token string.")
-                    return
-                }
-                
-                // Create Firebase credential
-                let credential = OAuthProvider.credential(
-                    withProviderID: "apple.com",
-                    idToken: idTokenString,
-                    rawNonce: nonce
-                )
-                
-                // Sign in with Firebase
-                Auth.auth().signIn(with: credential) { authResult, error in
-                    if let error = error {
-                        print("Firebase sign in with Apple error: \(error.localizedDescription)")
-                        self.errorMessage = "Firebase sign in failed: \(error.localizedDescription)"
-                        self.showAlert = true
-                    } else {
-                        print("User signed in with Apple, user: \(authResult?.user.uid ?? "none")")
-                        self.appViewModel.isLoggedIn = true
-                    }
-                }
+            // isLoggedIn state is already updated in AuthService
+            print("Successfully signed in with Apple, isNewUser: \(isNewUser)")
+            
+            // Ensure the app knows we're logged in
+            self.appViewModel.isLoggedIn = true
+            
+            // If this is a new user, ensure the tutorial will be shown
+            if isNewUser {
+                self.appViewModel.isFirstTimeUser = true
             }
         }
-        
-        authController.performRequests()
     }
     
     // Helper to present sign-in flows

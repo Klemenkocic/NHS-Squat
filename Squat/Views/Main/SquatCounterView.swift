@@ -143,10 +143,11 @@ struct SquatCounterView: View {
                             .foregroundColor(colorScheme == .dark ? .white : .primary)
                         
                         VStack(alignment: .leading, spacing: isPhone ? 12 : 16) {
-                            InstructionRow(number: "1", text: "Stand with feet shoulder-width apart")
-                            InstructionRow(number: "2", text: "Lower your body by bending your knees")
-                            InstructionRow(number: "3", text: "Keep your back straight")
-                            InstructionRow(number: "4", text: "Return to standing position")
+                            InstructionRow(number: "1", text: "Put the Phone on the ground leaning on something in front of you")
+                            InstructionRow(number: "2", text: "Click START, step back and Stand with feet shoulder-width apart")
+                            InstructionRow(number: "3", text: "Lower your body by bending your knees")
+                            InstructionRow(number: "4", text: "Keep your back straight")
+                            InstructionRow(number: "5", text: "Return to standing position")
                         }
                         .padding(.horizontal)
                     }
